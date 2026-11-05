@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    environment {
+        PROJECT_NAME = "Courier-Tracking-AI"
+        PYTHON_ENV   = "venv"
+        CASE_ID      = "Case 60"
+        STUDENT_NAME = "MASTAN SAB (Roll 60)"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "=== Stage 1: Checkout Source Code ==="
+                echo "Cloning repository branch: main"
+                echo "Commit ID: HEAD"
+                echo "Workspace: ${WORKSPACE}"
+            }
+        }
+
+        stage('Build & Environment') {
+            steps {
+                echo "=== Stage 2: Build & Environment Setup ==="
+                echo "Setting up Python virtual environment..."
+                bat '''
+                    python -m venv venv
+                    call venv\\Scripts\\activate.bat
+                    python -m pip install --upgrade pip
+                    pip install -r requirements.txt
+                    python Courier-Tracking-AI\\backend\\database.py
+                '''
+            }
+        }
+
+        stage('Automated Testing') {
+            steps {
+                echo "=== Stage 3: Automated Testing (Unit & Integration) ==="
+                bat '''
+                    call venv\\Scripts\\activate.bat
+                    pytest Courier-Tracking-AI/tests/unit Courier-Tracking-AI/tests/integration --junitxml=reports/test-results.xml -v
+                '''
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo "=== Stage 4: Packaging Release Artifact ==="
+                bat '''
+                    call venv\\Scripts\\activate.bat
+                    python -c "import shutil, os; os.makedirs('dist', exist_ok=True); shutil.make_archive('dist/courier-tracking-v1.0.0', 'zip', 'Courier-Tracking-AI')"
+                '''
+                archiveArtifacts artifacts: 'dist/*.zip', fingerprint: true
+                echo "Release artifact created: dist/courier-tracking-v1.0.0.zip"
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Publishing test results..."
+            junit 'reports/test-results.xml'
+        }
+        success {
+            echo "SUCCESS: Jenkins Pipeline completed successfully for ${PROJECT_NAME}."
+        }
+        failure {
+            echo "FAILURE: Pipeline execution halted. Alerting DevOps team."
+        }
+    }
+}

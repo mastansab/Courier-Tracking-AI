@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courier Tracking System - Case 60 (Mastan Sab)</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-icon">📦</div>
+                <div>
+                    <h1>SwiftTrack AI &bull; Courier Tracking System</h1>
+                    <p class="subtitle">AI in Software Engineering &bull; Case 60 | Student: <strong>MASTAN SAB</strong> (Roll No: 60, Class 5B)</p>
+                </div>
+            </div>
+            <div class="header-badge">
+                <span class="badge incremental">Incremental SDLC</span>
+                <span class="badge kanban">Kanban Agile</span>
+                <span class="badge capacity">Daily Target: 30,000 Parcels</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- System Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" id="tab-btn-tracking" onclick="switchTab('tracking')">🔍 Parcel Tracking & Workflow</button>
+            <button class="tab-btn" id="tab-btn-register" onclick="switchTab('register')">➕ Register New Parcel</button>
+            <button class="tab-btn" id="tab-btn-parcels" onclick="switchTab('parcels')">📋 Parcel Directory (20 Seeded)</button>
+            <button class="tab-btn" id="tab-btn-monitoring" onclick="switchTab('monitoring')">📊 Operational Monitoring (L4.5)</button>
+        </nav>
+
+        <!-- Notification Banner -->
+        <div id="alert-banner" class="alert-banner hidden"></div>
+
+        <!-- TAB 1: Tracking & Workflow -->
+        <section id="tab-tracking" class="tab-content active">
+            <!-- Search Bar -->
+            <div class="card search-card">
+                <h2>Search Parcel Status</h2>
+                <p class="card-desc">Enter a tracking number (e.g. <code>TRK-60-1006</code>, <code>TRK-60-1011</code>, <code>TRK-60-1016</code>) to query the real-time parcel workflow.</p>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Enter Tracking ID (e.g. TRK-60-1006)..." value="TRK-60-1006">
+                    <button class="btn btn-primary" id="btn-search" onclick="searchParcel()">Track Parcel</button>
+                    <button class="btn btn-outline" onclick="loadRandomParcel()">Try Sample ID</button>
+                </div>
+            </div>
+
+            <!-- Parcel Result Container -->
+            <div id="parcel-result" class="parcel-result-grid hidden">
+                <!-- Details Card -->
+                <div class="card detail-card">
+                    <div class="card-header-flex">
+                        <div>
+                            <span class="id-tag" id="display-tracking-id">TRK-60-XXXX</span>
+                            <h3 id="display-recipient">Recipient Name</h3>
+                        </div>
+                        <div id="display-status-badge" class="status-badge status-in-transit">In Transit</div>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="label">Sender</span>
+                            <span class="value" id="display-sender">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Weight</span>
+                            <span class="value" id="display-weight">- kg</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Origin</span>
+                            <span class="value" id="display-origin">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Destination</span>
+                            <span class="value" id="display-destination">-</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="label">Current Location</span>
+                            <span class="value location-highlight" id="display-location">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Registered On</span>
+                            <span class="value" id="display-created">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Last Updated</span>
+                            <span class="value" id="display-updated">-</span>
+                        </div>
+                    </div>
+
+                    <!-- AI Delay Risk Prediction (Task B) -->
+                    <div class="ai-prediction-box" id="ai-prediction-box">
+                        <div class="prediction-header">
+                            <span class="ai-tag">🤖 AI Delay Forecast (Task B)</span>
+                            <span class="risk-pill" id="display-risk-level">LOW RISK</span>
+                        </div>
+                        <p class="prediction-text" id="display-prediction-desc">Calculated Delay Probability: <strong>12.5%</strong>. Standard transit schedule active.</p>
+                    </div>
+
+                    <!-- Status Update Action Panel -->
+                    <div class="status-action-box">
+                        <h4>Update Parcel Status (Workflow Transition)</h4>
+                        <p class="hint">FSM Engine strictly enforces allowed transitions: <em>Registered &rarr; Picked Up &rarr; In Transit &rarr; Delivered</em></p>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="update-status-select">Target Status</label>
+                                <select id="update-status-select" class="form-control">
+                                    <option value="">Select Next Status...</option>
+                                    <option value="Picked Up">Picked Up</option>
+                                    <option value="In Transit">In Transit</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Delayed">Delayed (Exception)</option>
+                                    <option value="Delivery Failed">Delivery Failed (Exception)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="update-location-input">New Location</label>
+                                <input type="text" id="update-location-input" class="form-control" placeholder="e.g. Regional Hub / Sector 5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="update-notes-input">Status Remarks / Notes</label>
+                            <input type="text" id="update-notes-input" class="form-control" placeholder="Optional notes (e.g. Scanned at outbound sorting bay)">
+                        </div>
+                        <button class="btn btn-success" id="btn-update-status" onclick="updateParcelStatus()">Apply Transition</button>
+                    </div>
+                </div>
+
+                <!-- Workflow Visualizer & Timeline -->
+                <div class="card timeline-card">
+                    <h3>Workflow State Progression</h3>
+                    
+                    <!-- Stepper Visualizer -->
+                    <div class="workflow-stepper">
+                        <div class="step-node" id="step-node-registered">
+                            <div class="step-circle">1</div>
+                            <div class="step-label">Registered</div>
+                        </div>
+                        <div class="step-connector" id="conn-1"></div>
+                        <div class="step-node" id="step-node-pickedup">
+                            <div class="step-circle">2</div>
+                            <div class="step-label">Picked Up</div>
+                        </div>
+                        <div class="step-connector" id="conn-2"></div>
+                        <div class="step-node" id="step-node-intransit">
+                            <div class="step-circle">3</div>
+                            <div class="step-label">In Transit</div>
+                        </div>
+                        <div class="step-connector" id="conn-3"></div>
+                        <div class="step-node" id="step-node-delivered">
+                            <div class="step-circle">4</div>
+                            <div class="step-label">Delivered</div>
+                        </div>
+                    </div>
+
+                    <!-- Exceptional Badge if Delayed/Failed -->
+                    <div id="exception-banner" class="exception-badge hidden"></div>
+
+                    <!-- Audit History -->
+                    <h4 class="mt-4">Audit Trail & History</h4>
+                    <div class="timeline-list" id="timeline-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Register Parcel -->
+        <section id="tab-register" class="tab-content">
+            <div class="card form-card">
+                <h2>Register New Parcel (Feature FR-01 / US-01)</h2>
+                <p class="card-desc">Generate an automated tracking ID and initiate the lifecycle at state <strong>Registered</strong>.</p>
+                <form id="parcel-form" onsubmit="handleRegisterParcel(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reg-sender">Sender Name *</label>
+                            <input type="text" id="reg-sender" class="form-control" required placeholder="e.g. Acme Supplies Corp">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-recipient">Recipient Name *</label>
+                            <input type="text" id="reg-recipient" class="form-control" required placeholder="e.g. Mastan Sab">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reg-origin">Origin Hub / City *</label>
+                            <input type="text" id="reg-origin" class="form-control" required placeholder="e.g. Bengaluru Central Hub">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-destination">Destination City *</label>
+                            <input type="text" id="reg-destination" class="form-control" required placeholder="e.g. Delhi North Depot">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reg-weight">Parcel Weight (kg) *</label>
+                            <input type="number" step="0.1" id="reg-weight" class="form-control" required placeholder="e.g. 2.4" value="1.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-notes">Initial Booking Remarks</label>
+                            <input type="text" id="reg-notes" class="form-control" placeholder="e.g. Standard ground express">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btn-submit-reg">Create &amp; Register Parcel</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 3: Parcel Directory -->
+        <section id="tab-parcels" class="tab-content">
+            <div class="card">
+                <div class="card-header-flex">
+                    <div>
+                        <h2>Sample Parcel Database (20 Records)</h2>
+                        <p class="card-desc">Click any row to instantly track and inspect the parcel.</p>
+                    </div>
+                    <div class="filter-controls">
+                        <select id="filter-status" class="form-control" onchange="loadParcelsTable()">
+                            <option value="">All Statuses</option>
+                            <option value="Registered">Registered</option>
+                            <option value="Picked Up">Picked Up</option>
+                            <option value="In Transit">In Transit</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Delayed">Delayed</option>
+                            <option value="Delivery Failed">Delivery Failed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="parcels-table">
+                        <thead>
+                            <tr>
+                                <th>Tracking ID</th>
+                                <th>Recipient</th>
+                                <th>Route</th>
+                                <th>Weight</th>
+                                <th>Status</th>
+                                <th>Current Location</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="parcels-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: Operational Monitoring (L4.5) -->
+        <section id="tab-monitoring" class="tab-content">
+            <div class="card">
+                <div class="card-header-flex">
+                    <div>
+                        <h2>Operational Monitoring Dashboard (Experiment L4.5)</h2>
+                        <p class="card-desc">Real-time system telemetry, service-level thresholds, and automated alert actions.</p>
+                    </div>
+                    <button class="btn btn-outline" onclick="loadMetrics()">🔄 Refresh Metrics</button>
+                </div>
+
+                <!-- 6 Metric Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card" id="card-resp-time">
+                        <span class="metric-title">1. API Response Time</span>
+                        <div class="metric-value-box">
+                            <span class="metric-num" id="m-resp-time">--</span>
+                            <span class="metric-unit">ms</span>
+                        </div>
+                        <span class="metric-status status-normal" id="m-resp-status">NORMAL</span>
+                        <div class="metric-meta">Warning &gt; 150ms | Alert: Scale backend</div>
+                    </div>
+
+                    <div class="metric-card" id="card-success-rate">
+                        <span class="metric-title">2. API Success Rate</span>
+                        <div class="metric-value-box">
+                            <span class="metric-num" id="m-success-rate">--</span>
+                            <span class="metric-unit">%</span>
+                        </div>
+                        <span class="metric-status status-normal" id="m-success-status">NORMAL</span>
+                        <div class="metric-meta">Threshold &ge; 98% | Alert: Investigate 5xx</div>
+                    </div>
+
+                    <div class="metric-card" id="card-error-rate">
+                        <span class="metric-title">3. Error Rate</span>
+                        <div class="metric-value-box">
+                            <span class="metric-num" id="m-error-rate">--</span>
+                            <span class="metric-unit">%</span>
+                        </div>
+                        <span class="metric-status status-normal" id="m-error-status">NORMAL</span>
+                        <div class="metric-meta">Threshold &le; 2% | Alert: Rate Limiting</div>
+                    </div>
+
+                    <div class="metric-card" id="card-db-avail">
+                        <span class="metric-title">4. Database Availability</span>
+                        <div class="metric-value-box">
+                            <span class="metric-num" id="m-db-avail">--</span>
+                            <span class="metric-unit">%</span>
+                        </div>
+                        <span class="metric-status status-normal" id="m-db-status">UP</span>
+                        <div class="metric-meta">Latency: <span id="m-db-latency">--</span>ms | Alert: Replica failover</div>
+                    </div>
+
+                    <div class="metric-card" id="card-failed-updates">
+                        <span class="metric-title">5. Failed Parcel Updates</span>
+                        <div class="metric-value-box">
+                            <span class="metric-num" id="m-failed-updates">--</span>
+                            <span class="metric-unit">events</span>
+                        </div>
+                        <span class="metric-status status-normal" id="m-failed-status">NORMAL</span>
+                        <div class="metric-meta">Threshold &lt; 5 | Alert: Audit invalid FSM transitions</div>
+                    </div>
+
+                    <div class="metric-card" id="card-processing-delay">
+                        <span class="metric-title">6. Status Processing Delay</span>
+                        <div class="metric-value-box">
+                            <span class="metric-num" id="m-processing-delay">--</span>
+                            <span class="metric-unit">ms</span>
+                        </div>
+                        <span class="metric-status status-normal" id="m-delay-status">NORMAL</span>
+                        <div class="metric-meta">Threshold &lt; 80ms | Alert: Index DB writes</div>
+                    </div>
+                </div>
+
+                <!-- Metric Specification Table -->
+                <h3 class="mt-4">SLO Threshold and Incident Response Matrix</h3>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Metric Name</th>
+                                <th>Measured Value</th>
+                                <th>Normal Target</th>
+                                <th>Warning Level</th>
+                                <th>Critical Level</th>
+                                <th>Automated Alert Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>API Response Time</strong></td>
+                                <td id="tbl-m1">24.5 ms</td>
+                                <td>&lt; 100 ms</td>
+                                <td>150 ms</td>
+                                <td>300 ms</td>
+                                <td>Autoscale Flask backend workers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API Success Rate</strong></td>
+                                <td id="tbl-m2">99.4 %</td>
+                                <td>&ge; 99.0 %</td>
+                                <td>98.0 %</td>
+                                <td>95.0 %</td>
+                                <td>Trigger PagerDuty incident for 5xx errors</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Error Rate</strong></td>
+                                <td id="tbl-m3">0.6 %</td>
+                                <td>&le; 1.0 %</td>
+                                <td>2.0 %</td>
+                                <td>5.0 %</td>
+                                <td>Activate API gateway rate-limiting</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Database Availability</strong></td>
+                                <td id="tbl-m4">100.0 % (UP)</td>
+                                <td>100.0 %</td>
+                                <td>99.0 %</td>
+                                <td>95.0 %</td>
+                                <td>Automatic failover to read-replica SQLite/Postgres</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Failed Parcel Updates</strong></td>
+                                <td id="tbl-m5">0 events</td>
+                                <td>0</td>
+                                <td>5 events</td>
+                                <td>15 events</td>
+                                <td>Audit and reject invalid transition calls</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Processing Delay</strong></td>
+                                <td id="tbl-m6">32.4 ms</td>
+                                <td>&lt; 50 ms</td>
+                                <td>80 ms</td>
+                                <td>200 ms</td>
+                                <td>Queue updates into asynchronous message broker</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>Courier Tracking AI &bull; Case 60 Practical Assignment &bull; Student: MASTAN SAB (Roll No: 60, Class 5B) &bull; Built with Flask, SQLite &amp; Vanilla JS</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Python Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Environment variables & secrets
+.env
+*.env
+*.pem
+*.key
+credentials.json
+secret*
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+reports/*.xml
+
+# Temporary build & profiling directories
+build/
+dist/
+chrome_profile/
+chrome_temp/
+temp_*
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
