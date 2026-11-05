@@ -1,0 +1,68 @@
+version: '3.8'
+
+# docker-compose.yml - Multi-Container Orchestration for Courier Tracking
+# Case 60: Courier Tracking System (30,000 parcels/day)
+# Services: Flask Backend + PostgreSQL Database
+# Student: MASTAN SAB (Roll No: 60, Class 5B)
+
+services:
+  # Service 1: Courier Tracking Web Application
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: courier_tracking_web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=courier_db
+      - DB_USER=courier_user
+      - DB_PASSWORD=courier_secure_pass_60
+      - DATABASE_URL=postgresql://courier_user:courier_secure_pass_60@db:5432/courier_db
+      - DAILY_CAPACITY=30000
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - courier-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Service 2: Relational Database Container
+  db:
+    image: postgres:15-alpine
+    container_name: courier_tracking_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=courier_user
+      - POSTGRES_PASSWORD=courier_secure_pass_60
+      - POSTGRES_DB=courier_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - courier-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U courier_user -d courier_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+networks:
+  courier-net:
+    driver: bridge
+    name: courier_tracking_network
+
+volumes:
+  pgdata:
+    name: courier_tracking_pgdata

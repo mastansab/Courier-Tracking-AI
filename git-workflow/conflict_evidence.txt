@@ -1,0 +1,54 @@
+=== GENUINE GIT MERGE CONFLICT EVIDENCE (Experiment L3.3) ===
+Repository: C:\Users\prade\OneDrive\Desktop\sepm\Courier-Tracking-AI\git-workflow\demo_repo
+Command: git merge feature/security-compliance
+
+--- Git Output ---
+Auto-merging workflow_policy.py
+CONFLICT (content): Merge conflict in workflow_policy.py
+Automatic merge failed; fix conflicts and then commit the result.
+
+
+--- Git Status ---
+On branch main
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+	both modified:   workflow_policy.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+--- Conflicted File Contents with Markers ---
+# workflow_policy.py - Courier Tracking Policy
+# Case 60: Courier Tracking System (Incremental SDLC)
+
+def process_status_transition(parcel_id, current_status, new_status):
+    """Base transition logic for 30,000 parcels/day."""
+    print(f"Logging transition for {parcel_id}: {current_status} -> {new_status}")
+    # POLICY_BLOCK_START
+<<<<<<< HEAD
+    timeout_hours = 24  # Express SLA reduction
+    enable_auto_retry = True  # Auto-reroute failed parcels
+    validation_level = "EXPRESS_PRIORITY"
+=======
+    timeout_hours = 72  # Strict 72h quarantine hold
+    enable_auto_retry = False  # Mandatory manual review for exceptions
+    validation_level = "STRICT_AUDIT_COMPLIANT"
+>>>>>>> feature/security-compliance
+    # POLICY_BLOCK_END
+    return True
+
+
+--- Resolution Strategy ---
+AI Suggestion: Merge business objectives by applying 24h SLA for express transit while enforcing strict audit validation.
+Human Decision: Approved hybrid configuration 'STRICT_AUDIT_EXPRESS'.
+
+--- Post-Resolution Git Graph ---
+*   57d8ad3 Resolve merge conflict: Integrate 24h express SLA with strict audit compliance
+|\  
+| * d7536fe Compliance: Require strict 72h hold and manual audit verification
+* | 7589ab2 Feature: Update SLA to 24h express priority with auto-retry
+|/  
+* 366aabb Initial commit: Base workflow policy (Incremental SDLC)
