@@ -11,10 +11,6 @@
 
 ## 📋 Student & Case Information
 
-- **Student Name:** MASTAN SAB
-- **Roll Number:** 60
-- **Class / Section:** 5B
-- **Case Number:** Case 60
 - **Case Title:** Courier Tracking System
 - **Scenario:** A courier logistics company delivers 30,000 parcels daily. Customers frequently contact the call center to inquire about their parcel status and delivery locations.
 
